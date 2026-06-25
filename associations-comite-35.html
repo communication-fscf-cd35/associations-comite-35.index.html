@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Associations du Comité Départemental — Ille-et-Vilaine</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --teal:#8C3495;
+    --teal-dark:#6c2774;
+    --ink:#1b2430;
+    --ink-soft:#5a6573;
+    --line:#e3e7ea;
+    --bg:#f7f8f9;
+    --card:#ffffff;
+    --chip-bg:#f3e7f5;
+    --chip-text:#7a2c82;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  .app{display:flex;flex-direction:column;height:100vh;}
+
+  /* ---------- HEADER ---------- */
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 22px;background:var(--card);border-bottom:3px solid var(--teal);
+    flex-wrap:wrap;gap:10px;
+  }
+  .brand{display:flex;align-items:center;gap:14px;}
+  .badge35{
+    width:46px;height:46px;border-radius:12px;flex:none;
+    background:linear-gradient(135deg,var(--teal),var(--teal-dark));
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;letter-spacing:.5px;
+  }
+  .brand h1{margin:0;font-size:19px;font-weight:800;color:var(--ink);}
+  .brand h1 span{color:var(--teal);}
+  .brand p{margin:1px 0 0;font-size:12.5px;color:var(--ink-soft);}
+  .counts{display:flex;gap:10px;flex-wrap:wrap;}
+  .pill{
+    background:#f1f6f7;border:1px solid var(--line);border-radius:999px;
+    padding:7px 14px;font-size:12.5px;color:var(--ink-soft);white-space:nowrap;
+  }
+  .pill b{color:var(--teal-dark);font-size:14px;}
+
+  /* ---------- BODY LAYOUT ---------- */
+  .body{display:flex;flex:1;min-height:0;}
+  .sidebar{
+    width:360px;flex:none;background:var(--card);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;min-height:0;
+  }
+  .sidebar-controls{padding:16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px;}
+  .search-box{position:relative;}
+  .search-box input{
+    width:100%;padding:10px 12px 10px 34px;border:1px solid var(--line);border-radius:9px;
+    font-size:13.5px;color:var(--ink);background:#fbfcfc;
+  }
+  .search-box input:focus{outline:2px solid var(--teal);outline-offset:-1px;border-color:var(--teal);}
+  .search-box svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--ink-soft);}
+  label.field-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-weight:700;margin-bottom:2px;}
+  select{
+    width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;
+    font-size:13.5px;background:#fbfcfc;color:var(--ink);
+  }
+  select:focus{outline:2px solid var(--teal);outline-offset:-1px;}
+  .reset-link{
+    align-self:flex-start;border:none;background:none;color:var(--teal-dark);
+    font-size:12.5px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline;
+  }
+  .results-count{padding:10px 16px 4px;font-size:12px;color:var(--ink-soft);}
+  .list{flex:1;overflow-y:auto;padding:6px 10px 16px;}
+  .card{
+    padding:11px 12px;border-radius:10px;cursor:pointer;border:1px solid transparent;
+    margin-bottom:4px;transition:background .12s,border-color .12s;
+  }
+  .card:hover{background:#f4fafa;}
+  .card.active{background:var(--chip-bg);border-color:var(--teal);}
+  .card .name{font-weight:800;font-size:13.5px;color:var(--ink);margin:0 0 2px;}
+  .card .place{font-size:11.5px;color:var(--ink-soft);margin:0 0 4px;}
+  .card .discs{font-size:12px;color:var(--teal-dark);font-weight:600;line-height:1.4;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .empty{padding:30px 18px;text-align:center;color:var(--ink-soft);font-size:13px;}
+
+  /* ---------- MAP ---------- */
+  .map-wrap{flex:1;position:relative;min-width:0;}
+  #map{position:absolute;inset:0;background:#e9edee;}
+  .leaflet-popup-content-wrapper{padding:0;border-radius:10px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.18);}
+  .leaflet-popup-content{margin:0;width:280px !important;}
+  .pop-head{background:var(--ink);color:#fff;padding:11px 14px;}
+  .pop-head .pname{font-weight:800;font-size:14px;margin:0;}
+  .pop-head .ploc{font-size:11.5px;color:#8fd9de;text-transform:uppercase;letter-spacing:.03em;margin-top:2px;}
+  .pop-body{padding:12px 14px;background:#fff;}
+  .pop-row{display:flex;gap:8px;font-size:12.5px;color:var(--ink);margin-bottom:8px;align-items:flex-start;}
+  .pop-row svg{flex:none;width:14px;height:14px;margin-top:1px;color:var(--teal-dark);}
+  .pop-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;}
+  .chip{background:var(--chip-bg);color:var(--chip-text);font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;}
+  .leaflet-popup-tip-container{display:none;}
+  .marker-dot{
+    width:16px;height:16px;border-radius:50%;background:var(--teal);
+    border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);
+  }
+  .marker-dot.sel{background:#c46bcd;width:20px;height:20px;}
+
+  @media (max-width:760px){
+    .body{flex-direction:column;}
+    .sidebar{width:100%;height:42%;border-right:none;border-bottom:1px solid var(--line);}
+    .map-wrap{height:58%;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="badge35">35</div>
+      <div>
+        <h1>Associations du <span>Comité Départemental</span></h1>
+        <p>Fédération Sportive et Culturelle de France — Ille-et-Vilaine</p>
+      </div>
+    </div>
+    <div class="counts">
+      <div class="pill"><b id="totalCount">0</b> associations</div>
+      <div class="pill"><b id="shownCount">0</b> affichées</div>
+      <div class="pill"><b id="discCount">0</b> disciplines</div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="sidebar">
+      <div class="sidebar-controls">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input id="searchInput" type="text" placeholder="Rechercher une association, une ville…">
+        </div>
+        <div>
+          <label class="field-label" for="assocSelect">Association</label>
+          <select id="assocSelect"><option value="">Toutes les associations</option></select>
+        </div>
+        <div>
+          <label class="field-label" for="discSelect">Discipline</label>
+          <select id="discSelect"><option value="">Toutes les disciplines</option></select>
+        </div>
+        <button class="reset-link" id="resetBtn">Réinitialiser les filtres</button>
+      </div>
+      <div class="results-count"><span id="resultsLabel">0 associations trouvées</span></div>
+      <div class="list" id="list"></div>
+    </aside>
+
+    <main class="map-wrap">
+      <div id="map"></div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const ASSOCIATIONS = [{"name": "LES JEUNES D'ARGENTRE", "address": "5 Rue Ambroise Paré, 35370 Argentré-du-Plessis", "city": "Argentré-du-Plessis", "postal_code": "35370", "disciplines": ["Théâtre", "Gymnastique féminine", "Gymnastique masculine", "Gymnastique rythmique"], "lat": 48.0658, "lon": -1.1352}, {"name": "JEANNE D'ARC DE BRUZ", "address": "2 ESPLANADE COLETTE BESSON, 35170 BRUZ", "city": "Bruz", "postal_code": "35170", "disciplines": ["Gymnastique féminine", "Autres activités de remise en forme et d’entretien", "Gym Form'"], "lat": 48.0167, "lon": -1.745}, {"name": "AS TREMBLAY-CHAUVIGNE", "address": "ROUTE DE FOUGERES, 35560 VAL COUESNON", "city": "Val Couesnon", "postal_code": "35560", "disciplines": ["Volley Ball"], "lat": 48.445, "lon": -1.3}, {"name": "ESPERANCE DE CHAVAGNE", "address": "6 RUE DE L'AVENIR, 35310 CHAVAGNE", "city": "Chavagne", "postal_code": "35310", "disciplines": ["Autres activités manuelles", "Théâtre", "Tir à l’arc"], "lat": 48.0667, "lon": -1.7833}, {"name": "LA VAILLANTE", "address": "LE BOURG, 35420 LE FERRÉ", "city": "Le Ferré", "postal_code": "35420", "disciplines": ["Volley Ball"], "lat": 48.43, "lon": -1.27}, {"name": "ESPERANCE FOUGERES", "address": "1 BIS RUE LE BOUTEILLER, 35300 FOUGÈRES", "city": "Fougères", "postal_code": "35300", "disciplines": ["Cirque", "Autres arts du Cirque", "Autres danses", "Danse classique", "Country", "Danse contemporaine", "Modern’ Jazz", "Zumba", "Taï chi chuan", "Yoga"], "lat": 48.353, "lon": -1.198}, {"name": "LES VOLONTAIRES JANZÉENS", "address": "RUE DES TROIS SAPINS, 35150 JANZÉ", "city": "Janzé", "postal_code": "35150", "disciplines": ["Autres musiques", "Orchestre d'harmonie", "Orchestre de batterie fanfare"], "lat": 47.9667, "lon": -1.5}, {"name": "OLYMPIQUE MONTREUIL-LANDAVRAN", "address": "9 ALLÉE DES GENETS, 35450 LANDAVRAN", "city": "Landavran", "postal_code": "35450", "disciplines": ["Volley Ball"], "lat": 48.27, "lon": -1.23}, {"name": "VOLLEY BALL LOUVIGNE DE BAIS", "address": "6 PLACE DE LA MAIRIE, 35680 LOUVIGNÉ-DE-BAIS", "city": "Louvigné-de-Bais", "postal_code": "35680", "disciplines": ["Volley Ball"], "lat": 48.0263, "lon": -1.301}, {"name": "OCM TWIRLING MONTAUBAN DE BRETAGNE", "address": "2 RUE DE LA MÉTAIRIE NEUVE, 35360 MONTAUBAN-DE-BRETAGNE", "city": "Montauban-de-Bretagne", "postal_code": "35360", "disciplines": ["Twirling"], "lat": 48.1833, "lon": -1.9667}, {"name": "JA MORDELLES", "address": "3 RUE JEANNE D'ARC, 35310 MORDELLES", "city": "Mordelles", "postal_code": "35310", "disciplines": ["Gymnastique rythmique", "Tennis de table"], "lat": 48.0833, "lon": -1.8333}, {"name": "L'ENVOLÉE GYMNIQUE ACIGNE", "address": "4 Rue du Stade, 35690 Acigné", "city": "Acigné", "postal_code": "35690", "disciplines": ["Eveil de l’enfant", "Eveil des premiers pas", "Autres activités gymniques et d’expression", "Gymnastique féminine", "Gymnastique masculine", "Autres activités de remise en forme et d’entretien"], "lat": 48.15, "lon": -1.5167}, {"name": "FANFARE PLELANAISE", "address": "11 les Glyorels, 35380 Plélan le Grand", "city": "Plélan le Grand", "postal_code": "35380", "disciplines": ["Orchestre de batterie fanfare"], "lat": 48.0, "lon": -2.1167}, {"name": "SEP QUEDILLAC", "address": "19 RUE DE RENNES, 35290 QUÉDILLAC", "city": "Quédillac", "postal_code": "35290", "disciplines": ["Orchestre de batterie fanfare", "Multi Activités (éducatives et animation)", "Twirling"], "lat": 48.232, "lon": -2.077}, {"name": "AVENIR DE RANNEE", "address": "4 Avenue de l’Ardenne, 35130 Rannée", "city": "Rannée", "postal_code": "35130", "disciplines": ["Orchestre d'harmonie"], "lat": 47.873, "lon": -1.267}, {"name": "AVENIR DE RENNES", "address": "47 bis Rue Papu, 35000 Rennes", "city": "Rennes", "postal_code": "35000", "disciplines": ["Autres activités manuelles", "Eveil de l’enfant", "Gymnastique féminine", "Randonnée pédestre", "Autres activités de remise en forme et d’entretien", "Basket Ball", "Tennis de table"], "lat": 48.117, "lon": -1.6778}, {"name": "CADETS DE BRETAGNE", "address": "139 Rue d'Antrain, 35700 Rennes", "city": "Rennes", "postal_code": "35700", "disciplines": ["Eveil de l’enfant", "Gymnastique féminine", "Gymnastique rythmique", "Gym Form'"], "lat": 48.117, "lon": -1.6778}, {"name": "JA RENNES", "address": "16 Rue Guillaume Lejean, 35700 Rennes", "city": "Rennes", "postal_code": "35700", "disciplines": ["Basket Ball", "Volley Ball"], "lat": 48.117, "lon": -1.6778}, {"name": "TOUR D'AUVERGNE RENNES", "address": "8 Pass. du Couëdic, 35000 Rennes", "city": "Rennes", "postal_code": "35000", "disciplines": ["Gymnastique féminine"], "lat": 48.117, "lon": -1.6778}, {"name": "USL SAINT DOMINEUC", "address": "15 Chem. des Dames, 35190 Saint-Domineuc", "city": "Saint-Domineuc", "postal_code": "35190", "disciplines": ["Gymnastique féminine", "Gymnastique masculine"], "lat": 48.351, "lon": -1.949}, {"name": "SAINT GERMAIN TWIRLING CLUB", "address": "1 place de la Mairie, 35133 Ille-et-Vilaine", "city": "Fougères (secteur)", "postal_code": "35133", "disciplines": ["Twirling"], "lat": 48.32, "lon": -1.18}, {"name": "MAEN ROCH VOLLEY BALL", "address": "LE BOURG, 35460 MAEN ROCH", "city": "Maen Roch", "postal_code": "35460", "disciplines": ["Volley Ball"], "lat": 48.466, "lon": -1.217}, {"name": "US SAINT JEAN SUR VILAINE", "address": "10 RUE DU VERGER, 35220 SAINT-JEAN-SUR-VILAINE", "city": "Saint-Jean-sur-Vilaine", "postal_code": "35220", "disciplines": ["Volley Ball"], "lat": 48.034, "lon": -1.217}, {"name": "HVVB SAINT M'HERVE", "address": "14 LA MOUFTIÈRE, 35500 SAINT-M'HERVÉ", "city": "Saint-M'Hervé", "postal_code": "35500", "disciplines": ["Volley Ball"], "lat": 48.085, "lon": -1.033}, {"name": "AURORE DE VITRE", "address": "3B Rue de la Poultière, 35500 Vitré", "city": "Vitré", "postal_code": "35500", "disciplines": ["Multi Activités (éducatives et animation)", "Autres activités athlétiques", "Gymnastique féminine", "Gymnastique masculine", "Marche nordique"], "lat": 48.124, "lon": -1.213}, {"name": "VOLLEY-CLUB JAVENE", "address": "2 pl St Martin, 35133 Javené", "city": "Javené", "postal_code": "35133", "disciplines": ["Volley Ball"], "lat": 48.352, "lon": -1.232}, {"name": "LES BLEUETS LE PERTRE", "address": "2 PLACE DE L'EGLISE, 35370 LE PERTRE", "city": "Le Pertre", "postal_code": "35370", "disciplines": ["Volley Ball"], "lat": 48.052, "lon": -1.017}, {"name": "PLELAN LE GRAND - AZYLIS", "address": "1 r Montfort, 35380 Plélan le Grand", "city": "Plélan le Grand", "postal_code": "35380", "disciplines": ["Orchestre d'harmonie"], "lat": 48.0, "lon": -2.1167}, {"name": "ROMILLE \"LES VOLONTAIRES\"", "address": "5 RUE DE LA VAUNOISE, 35850 ROMILLÉ", "city": "Romillé", "postal_code": "35850", "disciplines": ["Eveil de l’enfant", "Gymnastique rythmique", "Autres activités de remise en forme et d’entretien", "Cardio training", "Musculation", "Pilates"], "lat": 48.217, "lon": -1.817}, {"name": "VOLLEY-BALL-CLUB ROMAGNE", "address": "17, rue Nationale, 35133 Romagné", "city": "Romagné", "postal_code": "35133", "disciplines": ["Volley Ball"], "lat": 48.4, "lon": -1.2}, {"name": "CLUB SPORTIF ST MEDARD VOLLEY", "address": "5 RUE DE LA MAIRIE, 35370 TORCÉ", "city": "Torcé", "postal_code": "35370", "disciplines": ["Volley Ball"], "lat": 48.043, "lon": -1.087}, {"name": "VOLLEY-BALL SAINT GERMAIN EN COGLES", "address": "25 LA BAZILLAIS, 35133 SAINT-GERMAIN-EN-COGLÈS", "city": "Saint-Germain-en-Coglès", "postal_code": "35133", "disciplines": ["Volley Ball"], "lat": 48.43, "lon": -1.16}, {"name": "TWIRLING SPORT BETTON", "address": "21 rue des Chataigniers, 35830 Betton", "city": "Betton", "postal_code": "35830", "disciplines": ["Twirling"], "lat": 48.1833, "lon": -1.65}, {"name": "VOLLEY BALL IZEEN", "address": "38 RUE PIERRE LANDAIS, 35450 VAL-D'IZÉ", "city": "Val-d'Izé", "postal_code": "35450", "disciplines": ["Volley Ball"], "lat": 48.18, "lon": -1.27}, {"name": "ESBM", "address": "2 LE BAS MENAIS, 50730 SAINT-BRICE-DE-LANDELLES", "city": "Saint-Brice-de-Landelles", "postal_code": "50730", "disciplines": ["Volley Ball"], "lat": 48.55, "lon": -1.18}, {"name": "VOLLEY BALL DOMPIERRE-LUITRE", "address": "9 RUE DE LA MAIRIE, 35210 LUITRÉ-DOMPIERRE", "city": "Luitré-Dompierre", "postal_code": "35210", "disciplines": ["Volley Ball"], "lat": 48.27, "lon": -1.1}, {"name": "ENTENTE SPORTIVE GOSNE", "address": "PLACE DU CALVAIRE, 35140 GOSNÉ", "city": "Gosné", "postal_code": "35140", "disciplines": ["Volley Ball"], "lat": 48.22, "lon": -1.4}, {"name": "LES JONGLEURS GYM LA GUERCHE DE BRETAGNE", "address": "15 Rue Notre Dame, 35130 La Guerche-de-Bretagne", "city": "La Guerche-de-Bretagne", "postal_code": "35130", "disciplines": ["Gymnastique féminine", "Gymnastique masculine"], "lat": 47.9167, "lon": -1.2333}, {"name": "US VERN TWIRLING BATON", "address": "7 A AVENUE DE LA CHALOTAIS, 35770 VERN-SUR-SEICHE", "city": "Vern-sur-Seiche", "postal_code": "35770", "disciplines": ["Twirling"], "lat": 48.0667, "lon": -1.6167}, {"name": "LA COMPAGNIE DE THALIE", "address": "8 RUE DE RENNES, 35132 VEZIN-LE-COQUET", "city": "Vezin-le-Coquet", "postal_code": "35132", "disciplines": ["Non précisée"], "lat": 48.1167, "lon": -1.7333}, {"name": "LES CHIC'ANERIES ORGERES", "address": "rue des sports, Orgères, France, 35230", "city": "Orgères", "postal_code": "35230", "disciplines": ["Théâtre"], "lat": 48.0167, "lon": -1.65}, {"name": "LES FÉES ZÈBRES", "address": "32 ROUTE DE SAINT JAMES, 35300 FOUGÈRES", "city": "Fougères", "postal_code": "35300", "disciplines": ["Eveil de l’enfant", "Eveil des premiers pas", "Multi Activités (éducatives et animation)"], "lat": 48.353, "lon": -1.198}, {"name": "DAO XING SHE - ARTS MARTIAUX TRADITIONNELS CHINOIS", "address": "9 Rue Emile Cochet, 35000 Rennes", "city": "Rennes", "postal_code": "35000", "disciplines": ["Kung fu"], "lat": 48.117, "lon": -1.6778}, {"name": "ESSC SENS DE BRETAGNE VOLLEY-BALL", "address": "9 place de la Mairie, 35490 Sens-de-Bretagne", "city": "Sens-de-Bretagne", "postal_code": "35490", "disciplines": ["Volley Ball"], "lat": 48.4, "lon": -1.55}];
+
+let map, markersLayer;
+const markerById = {};
+let activeId = null;
+
+function initMap(){
+  map = L.map('map', {scrollWheelZoom:true}).setView([48.18,-1.55], 10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+  markersLayer = L.layerGroup().addTo(map);
+}
+
+function dotIcon(selected){
+  return L.divIcon({
+    className:'',
+    html:`<div class="marker-dot${selected?' sel':''}"></div>`,
+    iconSize:[20,20], iconAnchor:[10,10], popupAnchor:[0,-10]
+  });
+}
+
+function popupHtml(a){
+  const chips = a.disciplines.map(d=>`<span class="chip">${d}</span>`).join('');
+  return `
+    <div class="pop-head">
+      <p class="pname">${a.name}</p>
+      <div class="ploc">${a.city||''}${a.postal_code? ' · '+a.postal_code:''}</div>
+    </div>
+    <div class="pop-body">
+      <div class="pop-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-7.1-7-12a7 7 0 1 1 14 0c0 4.9-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <span>${a.address}</span>
+      </div>
+      <div class="pop-row" style="margin-bottom:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" opacity="0"/><path d="M3 4l9 6 9-6M3 4h18v14H3z"/></svg>
+        <div class="pop-chips">${chips}</div>
+      </div>
+    </div>`;
+}
+
+function buildMarkers(){
+  ASSOCIATIONS.forEach(a=>{
+    const m = L.marker([a.lat, a.lon], {icon:dotIcon(false)});
+    m.bindPopup(popupHtml(a));
+    m.on('click', ()=>setActive(a.id, false));
+    markerById[a.id] = m;
+  });
+}
+
+function populateAssociations(){
+  const sel = document.getElementById('assocSelect');
+  const sorted = ASSOCIATIONS.slice().sort((a,b)=>a.name.localeCompare(b.name,'fr'));
+  sorted.forEach(a=>{
+    const opt = document.createElement('option');
+    opt.value = a.name; opt.textContent = a.name;
+    sel.appendChild(opt);
+  });
+}
+
+function populateDisciplines(){
+  const set = new Set();
+  ASSOCIATIONS.forEach(a=>a.disciplines.forEach(d=>{ if(d!=='Non précisée') set.add(d); }));
+  const sorted = Array.from(set).sort((a,b)=>a.localeCompare(b,'fr'));
+  const sel = document.getElementById('discSelect');
+  sorted.forEach(d=>{
+    const opt = document.createElement('option');
+    opt.value = d; opt.textContent = d;
+    sel.appendChild(opt);
+  });
+  document.getElementById('discCount').textContent = sorted.length;
+  document.getElementById('totalCount').textContent = ASSOCIATIONS.length;
+}
+
+function matches(a, q, disc, assocName){
+  if(assocName && a.name !== assocName) return false;
+  if(disc && !a.disciplines.includes(disc)) return false;
+  if(!q) return true;
+  const hay = (a.name+' '+(a.city||'')+' '+a.disciplines.join(' ')).toLowerCase();
+  return hay.includes(q);
+}
+
+function renderList(filtered){
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  if(filtered.length===0){
+    list.innerHTML = '<div class="empty">Aucune association ne correspond à votre recherche.</div>';
+    return;
+  }
+  filtered.forEach(a=>{
+    const div = document.createElement('div');
+    div.className = 'card'+(a.id===activeId?' active':'');
+    div.innerHTML = `
+      <p class="name">${a.name}</p>
+      <p class="place">${a.city||''}${a.postal_code? ' · '+a.postal_code:''}</p>
+      <p class="discs">${a.disciplines.join(', ')}</p>`;
+    div.addEventListener('click', ()=>setActive(a.id, true));
+    list.appendChild(div);
+  });
+}
+
+function setActive(id, fromList){
+  if(activeId!==null && markerById[activeId]) markerById[activeId].setIcon(dotIcon(false));
+  activeId = id;
+  const a = ASSOCIATIONS.find(x=>x.id===id);
+  if(!a) return;
+  markerById[id].setIcon(dotIcon(true));
+  if(fromList){
+    map.flyTo([a.lat,a.lon], 13, {duration:0.6});
+    setTimeout(()=>markerById[id].openPopup(), 350);
+  } else {
+    markerById[id].openPopup();
+  }
+  applyFilters(false);
+}
+
+function applyFilters(rebuildMarkers=true){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const disc = document.getElementById('discSelect').value;
+  const assocName = document.getElementById('assocSelect').value;
+  const filtered = ASSOCIATIONS.filter(a=>matches(a,q,disc,assocName));
+
+  document.getElementById('shownCount').textContent = filtered.length;
+  document.getElementById('resultsLabel').textContent = filtered.length+' association'+(filtered.length===1?'':'s')+' trouvée'+(filtered.length===1?'':'s');
+  renderList(filtered);
+
+  if(rebuildMarkers){
+    markersLayer.clearLayers();
+    const filteredIds = new Set(filtered.map(a=>a.id));
+    Object.entries(markerById).forEach(([id,m])=>{
+      if(filteredIds.has(Number(id))) markersLayer.addLayer(m);
+    });
+  }
+
+  if(assocName && filtered.length===1 && activeId!==filtered[0].id){
+    setActive(filtered[0].id, true);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  ASSOCIATIONS.forEach((a,i)=>a.id=i);
+  initMap();
+  buildMarkers();
+  populateAssociations();
+  populateDisciplines();
+  applyFilters();
+
+  document.getElementById('searchInput').addEventListener('input', ()=>applyFilters());
+  document.getElementById('assocSelect').addEventListener('change', ()=>applyFilters());
+  document.getElementById('discSelect').addEventListener('change', ()=>applyFilters());
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    document.getElementById('searchInput').value='';
+    document.getElementById('assocSelect').value='';
+    document.getElementById('discSelect').value='';
+    applyFilters();
+  });
+});
+</script>
+</body>
+</html>
