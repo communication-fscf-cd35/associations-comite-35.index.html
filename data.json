@@ -1,5 +1,8 @@
 [
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "LES JEUNES D'ARGENTRE",
     "q": "5 Rue Ambroise Paré",
     "postcode": "35370",
@@ -15,6 +18,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "JEANNE D'ARC DE BRUZ",
     "q": "2 Esplanade Colette Besson",
     "postcode": "35170",
@@ -29,6 +35,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "AS TREMBLAY-CHAUVIGNE",
     "q": "Val Couesnon",
     "postcode": "35560",
@@ -41,6 +50,9 @@
     "source": "manual"
   },
   {
+    "email": "tresorier@esperancechavagne.fr",
+    "phone": "02 99 64 22 85",
+    "website": "https://esperancechavagne.fr/",
     "name": "ESPERANCE DE CHAVAGNE",
     "q": "6 Rue de l'Avenir",
     "postcode": "35310",
@@ -55,6 +67,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "LA VAILLANTE",
     "q": "Le Ferré",
     "postcode": "35420",
@@ -67,6 +82,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "ESPERANCE FOUGERES",
     "q": "1 bis Rue Le Bouteiller",
     "postcode": "35300",
@@ -88,6 +106,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "LES VOLONTAIRES JANZÉENS",
     "q": "Rue des Trois Sapins",
     "postcode": "35150",
@@ -102,6 +123,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "OLYMPIQUE MONTREUIL-LANDAVRAN",
     "q": "Landavran",
     "postcode": "35450",
@@ -114,6 +138,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "VOLLEY BALL LOUVIGNE DE BAIS",
     "q": "6 Place de la Mairie",
     "postcode": "35680",
@@ -126,6 +153,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "OCM TWIRLING MONTAUBAN DE BRETAGNE",
     "q": "2 Rue de la Métairie Neuve",
     "postcode": "35360",
@@ -138,6 +168,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "JA MORDELLES",
     "q": "3 Rue Jeanne d'Arc",
     "postcode": "35310",
@@ -151,6 +184,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "L'ENVOLÉE GYMNIQUE ACIGNE",
     "q": "4 Rue du Stade",
     "postcode": "35690",
@@ -168,6 +204,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "FANFARE PLELANAISE",
     "q": "11 les Glyorels",
     "postcode": "35380",
@@ -180,6 +219,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "SEP QUEDILLAC",
     "q": "19 Rue de Rennes",
     "postcode": "35290",
@@ -194,6 +236,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "AVENIR DE RANNEE",
     "q": "4 Avenue de l'Ardenne",
     "postcode": "35130",
@@ -206,6 +251,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "AVENIR DE RENNES",
     "q": "47 bis Rue Papu",
     "postcode": "35000",
@@ -224,6 +272,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "CADETS DE BRETAGNE",
     "q": "139 Rue d'Antrain",
     "postcode": "35700",
@@ -239,6 +290,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "JA RENNES",
     "q": "16 Rue Guillaume Lejean",
     "postcode": "35700",
@@ -252,6 +306,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "TOUR D'AUVERGNE RENNES",
     "q": "8 Passage du Couëdic",
     "postcode": "35000",
@@ -264,6 +321,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "USL SAINT DOMINEUC",
     "q": "15 Chemin des Dames",
     "postcode": "35190",
@@ -277,6 +337,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "SAINT GERMAIN TWIRLING CLUB",
     "q": "1 Place de la Mairie",
     "postcode": "35133",
@@ -289,6 +352,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "MAEN ROCH VOLLEY BALL",
     "q": "Maen Roch",
     "postcode": "35460",
@@ -301,6 +367,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "US SAINT JEAN SUR VILAINE",
     "q": "10 Rue du Verger",
     "postcode": "35220",
@@ -313,6 +382,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "HVVB SAINT M'HERVE",
     "q": "Saint-M'Hervé",
     "postcode": "35500",
@@ -325,6 +397,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "AURORE DE VITRE",
     "q": "3 Rue de la Poultière",
     "postcode": "35500",
@@ -341,6 +416,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "VOLLEY-CLUB JAVENE",
     "q": "2 Place Saint-Martin",
     "postcode": "35133",
@@ -353,6 +431,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "LES BLEUETS LE PERTRE",
     "q": "2 Place de l'Église",
     "postcode": "35370",
@@ -365,6 +446,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "PLELAN LE GRAND - AZYLIS",
     "q": "1 Rue Montfort",
     "postcode": "35380",
@@ -377,6 +461,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "ROMILLE \"LES VOLONTAIRES\"",
     "q": "5 Rue de la Vaunoise",
     "postcode": "35850",
@@ -394,6 +481,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "VOLLEY-BALL-CLUB ROMAGNE",
     "q": "17 Rue Nationale",
     "postcode": "35133",
@@ -406,6 +496,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "CLUB SPORTIF ST MEDARD VOLLEY",
     "q": "5 Rue de la Mairie",
     "postcode": "35370",
@@ -418,6 +511,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "VOLLEY-BALL SAINT GERMAIN EN COGLES",
     "q": "Saint-Germain-en-Coglès",
     "postcode": "35133",
@@ -430,6 +526,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "TWIRLING SPORT BETTON",
     "q": "21 Rue des Châtaigniers",
     "postcode": "35830",
@@ -442,6 +541,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "VOLLEY BALL IZEEN",
     "q": "38 Rue Pierre Landais",
     "postcode": "35450",
@@ -454,6 +556,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "ESBM",
     "q": "Saint-Brice-de-Landelles",
     "postcode": "50730",
@@ -466,6 +571,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "VOLLEY BALL DOMPIERRE-LUITRE",
     "q": "9 Rue de la Mairie",
     "postcode": "35210",
@@ -478,6 +586,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "ENTENTE SPORTIVE GOSNE",
     "q": "Place du Calvaire",
     "postcode": "35140",
@@ -490,6 +601,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "LES JONGLEURS GYM LA GUERCHE DE BRETAGNE",
     "q": "15 Rue Notre-Dame",
     "postcode": "35130",
@@ -503,6 +617,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "US VERN TWIRLING BATON",
     "q": "7 Avenue de la Chalotais",
     "postcode": "35770",
@@ -515,6 +632,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "LA COMPAGNIE DE THALIE",
     "q": "8 Rue de Rennes",
     "postcode": "35132",
@@ -527,6 +647,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "LES CHIC'ANERIES ORGERES",
     "q": "Rue des Sports",
     "postcode": "35230",
@@ -539,6 +662,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "LES FÉES ZÈBRES",
     "q": "32 Route de Saint-James",
     "postcode": "35300",
@@ -553,6 +679,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "DAO XING SHE - ARTS MARTIAUX TRADITIONNELS CHINOIS",
     "q": "9 Rue Emile Cochet",
     "postcode": "35000",
@@ -565,6 +694,9 @@
     "source": "manual"
   },
   {
+    "email": "",
+    "phone": "",
+    "website": "",
     "name": "ESSC SENS DE BRETAGNE VOLLEY-BALL",
     "q": "9 Place de la Mairie",
     "postcode": "35490",
