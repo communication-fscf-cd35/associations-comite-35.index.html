@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Associations du Comité Départemental — Ille-et-Vilaine</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{--teal:#8C3495;--teal-dark:#6c2774;--ink:#1b2430;--ink-soft:#5a6573;--line:#e3e7ea;--bg:#f7f8f9;--card:#fff;--chip-bg:#f3e7f5;--chip-text:#7a2c82;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);}
+  .app{display:flex;flex-direction:column;height:100vh;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:var(--card);border-bottom:3px solid var(--teal);flex-wrap:wrap;gap:10px;}
+  .brand{display:flex;align-items:center;gap:14px;}
+  .badge35{width:46px;height:46px;border-radius:12px;flex:none;background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;}
+  .brand h1{margin:0;font-size:19px;font-weight:800;} .brand h1 span{color:var(--teal);}
+  .brand p{margin:1px 0 0;font-size:12.5px;color:var(--ink-soft);}
+  .counts{display:flex;gap:10px;flex-wrap:wrap;}
+  .pill{background:#f1f6f7;border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:12.5px;color:var(--ink-soft);white-space:nowrap;}
+  .pill b{color:var(--teal-dark);font-size:14px;}
+  .body{display:flex;flex:1;min-height:0;}
+  .sidebar{width:360px;flex:none;background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;}
+  .sidebar-controls{padding:16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px;}
+  .search-box{position:relative;}
+  .search-box input{width:100%;padding:10px 12px 10px 34px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;color:var(--ink);background:#fbfcfc;}
+  .search-box input:focus{outline:2px solid var(--teal);outline-offset:-1px;}
+  .search-box svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--ink-soft);}
+  label.field-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-weight:700;margin-bottom:2px;}
+  select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;background:#fbfcfc;color:var(--ink);}
+  select:focus{outline:2px solid var(--teal);outline-offset:-1px;}
+  .reset-link{align-self:flex-start;border:none;background:none;color:var(--teal-dark);font-size:12.5px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline;}
+  .results-count{padding:10px 16px 4px;font-size:12px;color:var(--ink-soft);}
+  .list{flex:1;overflow-y:auto;padding:6px 10px 16px;}
+  .card{padding:11px 12px;border-radius:10px;cursor:pointer;border:1px solid transparent;margin-bottom:4px;transition:background .12s,border-color .12s;}
+  .card:hover{background:#f4fafa;} .card.active{background:var(--chip-bg);border-color:var(--teal);}
+  .card .name{font-weight:800;font-size:13.5px;margin:0 0 2px;} .card .place{font-size:11.5px;color:var(--ink-soft);margin:0 0 4px;}
+  .card .discs{font-size:12px;color:var(--teal-dark);font-weight:600;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .empty{padding:30px 18px;text-align:center;color:var(--ink-soft);font-size:13px;}
+  .map-wrap{flex:1;position:relative;min-width:0;}
+  #map{position:absolute;inset:0;}
+
+  /* Overlay géocodage (affiché seulement si pas de data.json) */
+  #overlay{position:absolute;inset:0;background:rgba(247,248,249,.96);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;}
+  #overlay h2{margin:0;font-size:17px;font-weight:800;color:var(--ink);}
+  #overlay p{margin:0;font-size:13px;color:var(--ink-soft);text-align:center;max-width:320px;}
+  .prog-wrap{width:300px;height:9px;background:var(--line);border-radius:99px;overflow:hidden;}
+  .prog-fill{height:100%;background:var(--teal);border-radius:99px;width:0%;transition:width .25s;}
+  #overlay-status{font-size:12px;color:var(--ink-soft);max-width:320px;text-align:center;}
+
+  .leaflet-popup-content-wrapper{padding:0;border-radius:10px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.18);}
+  .leaflet-popup-content{margin:0;width:280px!important;}
+  .pop-head{background:var(--ink);color:#fff;padding:11px 14px;}
+  .pop-head .pname{font-weight:800;font-size:14px;margin:0;}
+  .pop-head .ploc{font-size:11.5px;color:#8fd9de;text-transform:uppercase;letter-spacing:.03em;margin-top:2px;}
+  .pop-body{padding:12px 14px;background:#fff;}
+  .pop-row{display:flex;gap:8px;font-size:12.5px;color:var(--ink);margin-bottom:8px;align-items:flex-start;}
+  .pop-row svg{flex:none;width:14px;height:14px;margin-top:1px;color:var(--teal-dark);}
+  .pop-chips{display:flex;flex-wrap:wrap;gap:5px;}
+  .chip{background:var(--chip-bg);color:var(--chip-text);font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;}
+  .leaflet-popup-tip-container{display:none;}
+  .marker-dot{width:16px;height:16px;border-radius:50%;background:var(--teal);border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+  .marker-dot.sel{background:#c46bcd;width:20px;height:20px;}
+  @media(max-width:760px){.body{flex-direction:column;}.sidebar{width:100%;height:42%;border-right:none;border-bottom:1px solid var(--line);}.map-wrap{height:58%;}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="badge35">35</div>
+      <div>
+        <h1>Associations du <span>Comité Départemental</span></h1>
+        <p>Fédération Sportive et Culturelle de France — Ille-et-Vilaine</p>
+      </div>
+    </div>
+    <div class="counts">
+      <div class="pill"><b id="totalCount">0</b> associations</div>
+      <div class="pill"><b id="shownCount">0</b> affichées</div>
+      <div class="pill"><b id="discCount">0</b> disciplines</div>
+    </div>
+  </header>
+  <div class="body">
+    <aside class="sidebar">
+      <div class="sidebar-controls">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input id="searchInput" type="text" placeholder="Rechercher une association, une ville…">
+        </div>
+        <div>
+          <label class="field-label" for="assocSelect">Association</label>
+          <select id="assocSelect"><option value="">Toutes les associations</option></select>
+        </div>
+        <div>
+          <label class="field-label" for="discSelect">Discipline</label>
+          <select id="discSelect"><option value="">Toutes les disciplines</option></select>
+        </div>
+        <button class="reset-link" id="resetBtn">Réinitialiser les filtres</button>
+      </div>
+      <div class="results-count"><span id="resultsLabel">Chargement…</span></div>
+      <div class="list" id="list"></div>
+    </aside>
+    <main class="map-wrap">
+      <div id="map"></div>
+      <div id="overlay">
+        <h2>📍 Localisation en cours…</h2>
+        <p>Chaque adresse est géocodée précisément via l'API officielle française.</p>
+        <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
+        <div id="overlay-status">Initialisation…</div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+// ─── Données brutes (fallback si pas de data.json) ───────────────────────────
+const RAW = [
+  {name:"LES JEUNES D'ARGENTRE",        q:"5 Rue Ambroise Paré",           postcode:"35370", city:"Argentré-du-Plessis",     disciplines:["Théâtre","Gymnastique féminine","Gymnastique masculine","Gymnastique rythmique"]},
+  {name:"JEANNE D'ARC DE BRUZ",          q:"2 Esplanade Colette Besson",    postcode:"35170", city:"Bruz",                    disciplines:["Gymnastique féminine","Autres activités de remise en forme et d'entretien","Gym Form'"]},
+  {name:"AS TREMBLAY-CHAUVIGNE",         q:"Val Couesnon",                  postcode:"35560", city:"Val Couesnon",             disciplines:["Volley Ball"]},
+  {name:"ESPERANCE DE CHAVAGNE",         q:"6 Rue de l'Avenir",            postcode:"35310", city:"Chavagne",                 disciplines:["Autres activités manuelles","Théâtre","Tir à l'arc"]},
+  {name:"LA VAILLANTE",                  q:"Le Ferré",                      postcode:"35420", city:"Le Ferré",                 disciplines:["Volley Ball"]},
+  {name:"ESPERANCE FOUGERES",            q:"1 bis Rue Le Bouteiller",       postcode:"35300", city:"Fougères",                 disciplines:["Cirque","Autres arts du Cirque","Autres danses","Danse classique","Country","Danse contemporaine","Modern' Jazz","Zumba","Taï chi chuan","Yoga"]},
+  {name:"LES VOLONTAIRES JANZÉENS",      q:"Rue des Trois Sapins",          postcode:"35150", city:"Janzé",                   disciplines:["Autres musiques","Orchestre d'harmonie","Orchestre de batterie fanfare"]},
+  {name:"OLYMPIQUE MONTREUIL-LANDAVRAN", q:"Landavran",                     postcode:"35450", city:"Landavran",               disciplines:["Volley Ball"]},
+  {name:"VOLLEY BALL LOUVIGNE DE BAIS",  q:"6 Place de la Mairie",          postcode:"35680", city:"Louvigné-de-Bais",        disciplines:["Volley Ball"]},
+  {name:"OCM TWIRLING MONTAUBAN DE BRETAGNE", q:"2 Rue de la Métairie Neuve", postcode:"35360", city:"Montauban-de-Bretagne", disciplines:["Twirling"]},
+  {name:"JA MORDELLES",                  q:"3 Rue Jeanne d'Arc",           postcode:"35310", city:"Mordelles",               disciplines:["Gymnastique rythmique","Tennis de table"]},
+  {name:"L'ENVOLÉE GYMNIQUE ACIGNE",     q:"4 Rue du Stade",               postcode:"35690", city:"Acigné",                  disciplines:["Eveil de l'enfant","Eveil des premiers pas","Autres activités gymniques et d'expression","Gymnastique féminine","Gymnastique masculine","Autres activités de remise en forme et d'entretien"]},
+  {name:"FANFARE PLELANAISE",            q:"11 les Glyorels",               postcode:"35380", city:"Plélan le Grand",         disciplines:["Orchestre de batterie fanfare"]},
+  {name:"SEP QUEDILLAC",                 q:"19 Rue de Rennes",              postcode:"35290", city:"Quédillac",               disciplines:["Orchestre de batterie fanfare","Multi Activités (éducatives et animation)","Twirling"]},
+  {name:"AVENIR DE RANNEE",              q:"4 Avenue de l'Ardenne",        postcode:"35130", city:"Rannée",                  disciplines:["Orchestre d'harmonie"]},
+  {name:"AVENIR DE RENNES",              q:"47 bis Rue Papu",               postcode:"35000", city:"Rennes",                  disciplines:["Autres activités manuelles","Eveil de l'enfant","Gymnastique féminine","Randonnée pédestre","Autres activités de remise en forme et d'entretien","Basket Ball","Tennis de table"]},
+  {name:"CADETS DE BRETAGNE",            q:"139 Rue d'Antrain",            postcode:"35700", city:"Rennes",                  disciplines:["Eveil de l'enfant","Gymnastique féminine","Gymnastique rythmique","Gym Form'"]},
+  {name:"JA RENNES",                     q:"16 Rue Guillaume Lejean",       postcode:"35700", city:"Rennes",                  disciplines:["Basket Ball","Volley Ball"]},
+  {name:"TOUR D'AUVERGNE RENNES",        q:"8 Passage du Couëdic",         postcode:"35000", city:"Rennes",                  disciplines:["Gymnastique féminine"]},
+  {name:"USL SAINT DOMINEUC",            q:"15 Chemin des Dames",           postcode:"35190", city:"Saint-Domineuc",          disciplines:["Gymnastique féminine","Gymnastique masculine"]},
+  {name:"SAINT GERMAIN TWIRLING CLUB",   q:"1 Place de la Mairie",          postcode:"35133", city:"Saint-Germain-en-Coglès", disciplines:["Twirling"]},
+  {name:"MAEN ROCH VOLLEY BALL",         q:"Maen Roch",                     postcode:"35460", city:"Maen Roch",               disciplines:["Volley Ball"]},
+  {name:"US SAINT JEAN SUR VILAINE",     q:"10 Rue du Verger",              postcode:"35220", city:"Saint-Jean-sur-Vilaine",  disciplines:["Volley Ball"]},
+  {name:"HVVB SAINT M'HERVE",            q:"Saint-M'Hervé",                 postcode:"35500", city:"Saint-M'Hervé",           disciplines:["Volley Ball"]},
+  {name:"AURORE DE VITRE",               q:"3 Rue de la Poultière",         postcode:"35500", city:"Vitré",                   disciplines:["Multi Activités (éducatives et animation)","Autres activités athlétiques","Gymnastique féminine","Gymnastique masculine","Marche nordique"]},
+  {name:"VOLLEY-CLUB JAVENE",            q:"2 Place Saint-Martin",          postcode:"35133", city:"Javené",                  disciplines:["Volley Ball"]},
+  {name:"LES BLEUETS LE PERTRE",         q:"2 Place de l'Église",          postcode:"35370", city:"Le Pertre",               disciplines:["Volley Ball"]},
+  {name:"PLELAN LE GRAND - AZYLIS",      q:"1 Rue Montfort",                postcode:"35380", city:"Plélan le Grand",         disciplines:["Orchestre d'harmonie"]},
+  {name:"ROMILLE \"LES VOLONTAIRES\"",   q:"5 Rue de la Vaunoise",          postcode:"35850", city:"Romillé",                 disciplines:["Eveil de l'enfant","Gymnastique rythmique","Autres activités de remise en forme et d'entretien","Cardio training","Musculation","Pilates"]},
+  {name:"VOLLEY-BALL-CLUB ROMAGNE",      q:"17 Rue Nationale",              postcode:"35133", city:"Romagné",                 disciplines:["Volley Ball"]},
+  {name:"CLUB SPORTIF ST MEDARD VOLLEY", q:"5 Rue de la Mairie",            postcode:"35370", city:"Torcé",                   disciplines:["Volley Ball"]},
+  {name:"VOLLEY-BALL SAINT GERMAIN EN COGLES", q:"Saint-Germain-en-Coglès", postcode:"35133", city:"Saint-Germain-en-Coglès", disciplines:["Volley Ball"]},
+  {name:"TWIRLING SPORT BETTON",         q:"21 Rue des Châtaigniers",       postcode:"35830", city:"Betton",                  disciplines:["Twirling"]},
+  {name:"VOLLEY BALL IZEEN",             q:"38 Rue Pierre Landais",         postcode:"35450", city:"Val-d'Izé",               disciplines:["Volley Ball"]},
+  {name:"ESBM",                          q:"Saint-Brice-de-Landelles",      postcode:"50730", city:"Saint-Brice-de-Landelles", disciplines:["Volley Ball"]},
+  {name:"VOLLEY BALL DOMPIERRE-LUITRE",  q:"9 Rue de la Mairie",            postcode:"35210", city:"Luitré-Dompierre",        disciplines:["Volley Ball"]},
+  {name:"ENTENTE SPORTIVE GOSNE",        q:"Place du Calvaire",             postcode:"35140", city:"Gosné",                   disciplines:["Volley Ball"]},
+  {name:"LES JONGLEURS GYM LA GUERCHE DE BRETAGNE", q:"15 Rue Notre-Dame", postcode:"35130", city:"La Guerche-de-Bretagne",  disciplines:["Gymnastique féminine","Gymnastique masculine"]},
+  {name:"US VERN TWIRLING BATON",        q:"7 Avenue de la Chalotais",      postcode:"35770", city:"Vern-sur-Seiche",         disciplines:["Twirling"]},
+  {name:"LA COMPAGNIE DE THALIE",        q:"8 Rue de Rennes",               postcode:"35132", city:"Vezin-le-Coquet",         disciplines:["Non précisée"]},
+  {name:"LES CHIC'ANERIES ORGERES",      q:"Rue des Sports",                postcode:"35230", city:"Orgères",                 disciplines:["Théâtre"]},
+  {name:"LES FÉES ZÈBRES",              q:"32 Route de Saint-James",        postcode:"35300", city:"Fougères",                disciplines:["Eveil de l'enfant","Eveil des premiers pas","Multi Activités (éducatives et animation)"]},
+  {name:"DAO XING SHE - ARTS MARTIAUX TRADITIONNELS CHINOIS", q:"9 Rue Emile Cochet", postcode:"35000", city:"Rennes", disciplines:["Kung fu"]},
+  {name:"ESSC SENS DE BRETAGNE VOLLEY-BALL", q:"9 Place de la Mairie",      postcode:"35490", city:"Sens-de-Bretagne",        disciplines:["Volley Ball"]},
+];
+
+// ─── MAP & état ───────────────────────────────────────────────────────────────
+let ASSOCS = [];
+let map, layerGroup;
+const markerById = {};
+let activeId = null;
+const CACHE_KEY = 'cd35_v3';
+
+function initMap(){
+  map = L.map('map',{scrollWheelZoom:true}).setView([48.18,-1.6],10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
+  layerGroup = L.layerGroup().addTo(map);
+}
+
+function dotIcon(sel){
+  return L.divIcon({className:'',html:`<div class="marker-dot${sel?' sel':''}"></div>`,iconSize:[20,20],iconAnchor:[10,10],popupAnchor:[0,-12]});
+}
+
+function popupHtml(a){
+  return `<div class="pop-head"><p class="pname">${a.name}</p><div class="ploc">${a.city} · ${a.postcode}</div></div>
+  <div class="pop-body">
+    <div class="pop-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-7.1-7-12a7 7 0 1 1 14 0c0 4.9-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg><span>${a.q}, ${a.postcode} ${a.city}</span></div>
+    <div class="pop-row" style="margin-bottom:0"><div class="pop-chips">${a.disciplines.map(d=>`<span class="chip">${d}</span>`).join('')}</div></div>
+  </div>`;
+}
+
+// ─── Chargement : data.json en priorité, sinon géocodage ─────────────────────
+async function loadData(){
+  // 1. Essayer data.json (coordonnées corrigées par l'admin)
+  try{
+    const r = await fetch('./data.json?v='+Date.now());
+    if(r.ok){
+      const data = await r.json();
+      if(Array.isArray(data) && data.length){
+        document.getElementById('overlay').style.display='none';
+        return data.map((a,i)=>({...a,id:i}));
+      }
+    }
+  }catch(e){}
+
+  // 2. Fallback : géocodage automatique avec cache localStorage
+  let cache = {};
+  try{ cache = JSON.parse(localStorage.getItem(CACHE_KEY)||'{}'); }catch(e){}
+
+  const fill = document.getElementById('progFill');
+  const status = document.getElementById('overlay-status');
+  const results = [];
+
+  for(let i=0;i<RAW.length;i++){
+    const a = RAW[i];
+    fill.style.width=(i/RAW.length*100)+'%';
+    status.textContent=`${i+1}/${RAW.length} — ${a.name}`;
+
+    if(cache[a.name]){
+      results.push({...a, id:i, ...cache[a.name]});
+    } else {
+      try{
+        const url=`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(a.q)}&postcode=${a.postcode}&limit=1`;
+        const r=await fetch(url);
+        const d=await r.json();
+        let coords=null;
+        if(d.features&&d.features.length){
+          const [lon,lat]=d.features[0].geometry.coordinates;
+          coords={lat,lon};
+        } else {
+          const r2=await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(a.city)}&postcode=${a.postcode}&limit=1`);
+          const d2=await r2.json();
+          if(d2.features&&d2.features.length){const [lon,lat]=d2.features[0].geometry.coordinates;coords={lat,lon};}
+        }
+        if(coords){cache[a.name]=coords;results.push({...a,id:i,...coords});}
+        else results.push({...a,id:i,lat:48.18,lon:-1.6});
+      }catch(e){
+        results.push({...a,id:i,lat:48.18,lon:-1.6});
+      }
+      await new Promise(r=>setTimeout(r,120));
+    }
+  }
+  fill.style.width='100%';
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify(cache));}catch(e){}
+  document.getElementById('overlay').style.display='none';
+  return results;
+}
+
+// ─── UI ───────────────────────────────────────────────────────────────────────
+function buildMarkers(){
+  ASSOCS.forEach(a=>{
+    const m=L.marker([a.lat,a.lon],{icon:dotIcon(false)});
+    m.bindPopup(popupHtml(a),{maxWidth:300});
+    m.on('click',()=>setActive(a.id,false));
+    markerById[a.id]=m;
+    layerGroup.addLayer(m);
+  });
+}
+
+function populateSelects(){
+  const sa=document.getElementById('assocSelect');
+  ASSOCS.slice().sort((a,b)=>a.name.localeCompare(b.name,'fr')).forEach(a=>{
+    const o=document.createElement('option');o.value=a.name;o.textContent=a.name;sa.appendChild(o);
+  });
+  const set=new Set();
+  ASSOCS.forEach(a=>a.disciplines.forEach(d=>{if(d!=='Non précisée')set.add(d);}));
+  const sd=document.getElementById('discSelect');
+  Array.from(set).sort((a,b)=>a.localeCompare(b,'fr')).forEach(d=>{
+    const o=document.createElement('option');o.value=d;o.textContent=d;sd.appendChild(o);
+  });
+  document.getElementById('totalCount').textContent=ASSOCS.length;
+  document.getElementById('discCount').textContent=set.size;
+}
+
+function matches(a,q,disc,assocName){
+  if(assocName&&a.name!==assocName)return false;
+  if(disc&&!a.disciplines.includes(disc))return false;
+  if(!q)return true;
+  return (a.name+' '+a.city+' '+a.disciplines.join(' ')).toLowerCase().includes(q);
+}
+
+function renderList(filtered){
+  const list=document.getElementById('list');
+  list.innerHTML='';
+  if(!filtered.length){list.innerHTML='<div class="empty">Aucune association trouvée.</div>';return;}
+  filtered.forEach(a=>{
+    const d=document.createElement('div');
+    d.className='card'+(a.id===activeId?' active':'');
+    d.innerHTML=`<p class="name">${a.name}</p><p class="place">${a.city} · ${a.postcode}</p><p class="discs">${a.disciplines.join(', ')}</p>`;
+    d.addEventListener('click',()=>setActive(a.id,true));
+    list.appendChild(d);
+  });
+}
+
+function setActive(id,fromList){
+  if(activeId!==null&&markerById[activeId])markerById[activeId].setIcon(dotIcon(false));
+  activeId=id;
+  const a=ASSOCS.find(x=>x.id===id);
+  if(!a)return;
+  markerById[id].setIcon(dotIcon(true));
+  if(fromList){
+    map.flyTo([a.lat,a.lon],16,{duration:0.5});
+    setTimeout(()=>markerById[id].openPopup(),400);
+  }else{
+    markerById[id].openPopup();
+  }
+  applyFilters(false);
+}
+
+function applyFilters(rebuild=true){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  const disc=document.getElementById('discSelect').value;
+  const assocName=document.getElementById('assocSelect').value;
+  const filtered=ASSOCS.filter(a=>matches(a,q,disc,assocName));
+  document.getElementById('shownCount').textContent=filtered.length;
+  document.getElementById('resultsLabel').textContent=filtered.length+' association'+(filtered.length!==1?'s':'')+' trouvée'+(filtered.length!==1?'s':'');
+  renderList(filtered);
+  if(rebuild){
+    layerGroup.clearLayers();
+    const ids=new Set(filtered.map(a=>a.id));
+    Object.entries(markerById).forEach(([id,m])=>{if(ids.has(+id))layerGroup.addLayer(m);});
+  }
+  if(assocName&&filtered.length===1&&activeId!==filtered[0].id)setActive(filtered[0].id,true);
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',async()=>{
+  initMap();
+  ASSOCS = await loadData();
+  buildMarkers();
+  populateSelects();
+  applyFilters();
+  document.getElementById('searchInput').addEventListener('input',()=>applyFilters());
+  document.getElementById('assocSelect').addEventListener('change',()=>applyFilters());
+  document.getElementById('discSelect').addEventListener('change',()=>applyFilters());
+  document.getElementById('resetBtn').addEventListener('click',()=>{
+    document.getElementById('searchInput').value='';
+    document.getElementById('assocSelect').value='';
+    document.getElementById('discSelect').value='';
+    applyFilters();
+  });
+});
+</script>
+</body>
+</html>
