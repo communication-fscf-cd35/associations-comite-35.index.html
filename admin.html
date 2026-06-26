@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Admin — Carte Associations CD35</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --teal:#8C3495;--teal-dark:#6c2774;--ink:#1b2430;--ink-soft:#5a6573;
+    --line:#e3e7ea;--bg:#f7f8f9;--card:#fff;--chip-bg:#f3e7f5;--chip-text:#7a2c82;
+    --ok:#1a7a4a;--ok-bg:#e6f4ed;--red:#c0392b;--red-bg:#fdf0ee;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);}
+
+  #loginScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;}
+  .login-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:40px 36px;width:340px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.10);}
+  .login-card .logo{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;margin:0 auto 18px;}
+  .login-card h2{font-size:17px;font-weight:800;margin-bottom:6px;}
+  .login-card p{font-size:13px;color:var(--ink-soft);margin-bottom:22px;}
+  .login-card input{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:9px;font-size:14px;margin-bottom:12px;background:#fbfcfc;}
+  .login-card input:focus{outline:2px solid var(--teal);outline-offset:-1px;}
+  .login-card button{width:100%;padding:11px;background:var(--teal);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;}
+  .login-card button:hover{background:var(--teal-dark);}
+  .login-error{color:var(--red);font-size:13px;margin-top:8px;display:none;}
+
+  #app{display:none;flex-direction:column;height:100vh;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:11px 20px;background:var(--card);border-bottom:3px solid var(--teal);gap:12px;flex-wrap:wrap;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .badge35{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex:none;}
+  header h1{font-size:15px;font-weight:800;}
+  header p{font-size:11.5px;color:var(--ink-soft);}
+  .header-actions{display:flex;gap:8px;align-items:center;}
+  .btn{padding:8px 15px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;white-space:nowrap;}
+  .btn-outline{background:#fff;border:1.5px solid var(--line);color:var(--ink);}
+  .btn-outline:hover{border-color:var(--teal);color:var(--teal);}
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-primary:hover{background:var(--teal-dark);}
+  .btn-danger{background:var(--red-bg);color:var(--red);border:1.5px solid #f0c0b8;}
+  .btn-danger:hover{background:#fce4e0;}
+  .btn-sm{padding:5px 10px;font-size:12px;}
+  #newAssocBtn{background:var(--ok-bg);color:var(--ok);border:1.5px solid #a8d9bf;}
+  #newAssocBtn:hover{background:#d0edde;}
+
+  .tabs{display:flex;gap:0;border-bottom:2px solid var(--line);background:var(--card);padding:0 20px;}
+  .tab{padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink-soft);border-bottom:3px solid transparent;margin-bottom:-2px;transition:color .15s;}
+  .tab:hover{color:var(--ink);}
+  .tab.active{color:var(--teal);border-bottom-color:var(--teal);}
+
+  #viewCarte{display:flex;flex:1;min-height:0;}
+  .sidebar{width:320px;flex:none;background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;}
+  .sidebar-top{padding:12px;border-bottom:1px solid var(--line);}
+  .search-box{position:relative;}
+  .search-box input{width:100%;padding:8px 12px 8px 30px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fbfcfc;}
+  .search-box input:focus{outline:2px solid var(--teal);outline-offset:-1px;}
+  .search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--ink-soft);}
+  .map-list{flex:1;overflow-y:auto;padding:5px 8px 12px;}
+  .map-card{padding:9px 11px;border-radius:8px;cursor:pointer;border:1.5px solid transparent;margin-bottom:3px;}
+  .map-card:hover{background:#f5f0f7;}
+  .map-card.active{background:var(--chip-bg);border-color:var(--teal);}
+  .map-card .cn{font-weight:700;font-size:13px;}
+  .map-card .cc{font-size:11.5px;color:var(--ink-soft);margin-top:1px;}
+  .main-map{flex:1;display:flex;flex-direction:column;min-width:0;position:relative;}
+  #map{flex:1;min-height:0;}
+  .map-hint{background:var(--card);border-top:1px solid var(--line);padding:10px 16px;font-size:12px;color:var(--ink-soft);}
+  .map-hint b{color:var(--teal-dark);}
+
+  #viewListe{display:none;flex:1;flex-direction:column;min-height:0;overflow:hidden;}
+  .liste-toolbar{padding:12px 20px;border-bottom:1px solid var(--line);background:var(--card);display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .liste-toolbar input{padding:8px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fbfcfc;width:240px;}
+  .liste-toolbar input:focus{outline:2px solid var(--teal);outline-offset:-1px;}
+  .table-wrap{flex:1;overflow:auto;padding:16px 20px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;padding:9px 12px;background:var(--bg);border-bottom:2px solid var(--line);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-weight:700;white-space:nowrap;}
+  td{padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr:hover td{background:#faf7fb;}
+  .td-name{font-weight:700;}
+  .td-city{color:var(--ink-soft);white-space:nowrap;}
+  .td-discs{display:flex;flex-wrap:wrap;gap:4px;}
+  .chip{background:var(--chip-bg);color:var(--chip-text);font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;}
+  .td-actions{display:flex;gap:6px;white-space:nowrap;}
+  .td-contact{font-size:12px;color:var(--ink-soft);line-height:1.6;}
+
+  #modalOverlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:8000;display:none;align-items:center;justify-content:center;padding:16px;}
+  #modalOverlay.open{display:flex;}
+  .modal{background:var(--card);border-radius:14px;width:100%;max-width:580px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+  .modal-head{padding:18px 20px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+  .modal-head h3{font-size:15px;font-weight:800;}
+  .modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink-soft);line-height:1;padding:2px 6px;}
+  .modal-body{padding:18px 20px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;}
+  .modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-weight:700;}
+  .field input,.field textarea{padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13.5px;background:#fbfcfc;color:var(--ink);}
+  .field input:focus,.field textarea:focus{outline:2px solid var(--teal);outline-offset:-1px;}
+  .field input[readonly]{background:#f0f0f0;color:#888;cursor:not-allowed;}
+  .field textarea{resize:vertical;min-height:80px;font-family:inherit;}
+  .field .hint{font-size:11.5px;color:var(--ink-soft);}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  .coord-row{display:flex;gap:10px;align-items:flex-end;}
+  .coord-row .field{flex:1;}
+  .lock-badge{font-size:11px;color:var(--ok);font-weight:700;background:var(--ok-bg);padding:6px 10px;border-radius:6px;white-space:nowrap;border:1px solid #a8d9bf;}
+  .section-divider{border:none;border-top:1px solid var(--line);margin:4px 0;}
+
+  #confirmOverlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9500;display:none;align-items:center;justify-content:center;}
+  #confirmOverlay.open{display:flex;}
+  .confirm-box{background:var(--card);border-radius:12px;padding:24px 26px;max-width:380px;width:100%;margin:16px;box-shadow:0 16px 48px rgba(0,0,0,.25);}
+  .confirm-box h4{font-size:15px;font-weight:800;margin-bottom:8px;}
+  .confirm-box p{font-size:13px;color:var(--ink-soft);margin-bottom:18px;line-height:1.5;}
+  .confirm-box .cf-actions{display:flex;gap:10px;justify-content:flex-end;}
+
+  #toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:11px 17px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9000;}
+  #toast.show{opacity:1;}
+
+  @media(max-width:700px){
+    .sidebar{width:100%;height:38%;border-right:none;border-bottom:1px solid var(--line);}
+    #viewCarte{flex-direction:column;}
+    .row2,.row3{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="logo">35</div>
+    <h2>Espace administrateur</h2>
+    <p>Accès réservé à la gestion des associations.</p>
+    <input type="password" id="pwdInput" placeholder="Mot de passe" />
+    <button onclick="checkLogin()">Se connecter</button>
+    <div class="login-error" id="loginError">Mot de passe incorrect.</div>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="brand">
+      <div class="badge35">35</div>
+      <div>
+        <h1>Administration — Associations CD35</h1>
+        <p id="headerCount">Chargement…</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn" id="newAssocBtn" onclick="openNewModal()">＋ Nouvelle association</button>
+      <button class="btn btn-primary" onclick="exportJSON()">⬇ Exporter data.json</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" id="tabCarte" onclick="switchTab('carte')">🗺 Carte &amp; coordonnées</div>
+    <div class="tab" id="tabListe" onclick="switchTab('liste')">✏️ Éditer les associations</div>
+  </div>
+
+  <div id="viewCarte">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input id="mapSearch" type="text" placeholder="Rechercher…" oninput="renderMapList()">
+        </div>
+      </div>
+      <div class="map-list" id="mapList"></div>
+    </aside>
+    <div class="main-map">
+      <div id="map"></div>
+      <div class="map-hint">
+        Sélectionnez une association puis <b>cliquez sur la carte</b> pour déplacer son point.
+      </div>
+    </div>
+  </div>
+
+  <div id="viewListe">
+    <div class="liste-toolbar">
+      <input id="listeSearch" type="text" placeholder="🔍 Rechercher…" oninput="renderTable()">
+      <span id="listeCount" style="font-size:12px;color:var(--ink-soft);"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Ville</th>
+            <th>Contact</th>
+            <th>Disciplines</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE ÉDITION -->
+<div id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">Modifier l'association</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Nom de l'association</label>
+        <input type="text" id="fName" placeholder="NOM EN MAJUSCULES">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Ville</label>
+          <input type="text" id="fCity" placeholder="Nom de la ville">
+        </div>
+        <div class="field">
+          <label>Code postal</label>
+          <input type="text" id="fPostcode" placeholder="35000" maxlength="5">
+        </div>
+      </div>
+      <div class="field">
+        <label>Adresse (rue / lieu-dit)</label>
+        <input type="text" id="fAddress" placeholder="5 Rue de la Mairie">
+      </div>
+      <div class="field">
+        <label>Disciplines</label>
+        <textarea id="fDiscs" placeholder="Une discipline par ligne&#10;Volley Ball&#10;Gymnastique féminine"></textarea>
+        <span class="hint">Une discipline par ligne.</span>
+      </div>
+
+      <hr class="section-divider">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-weight:700;">Informations de contact <span style="font-weight:400;font-style:italic;">(optionnelles)</span></div>
+
+      <div class="row2">
+        <div class="field">
+          <label>📧 Email</label>
+          <input type="email" id="fEmail" placeholder="contact@association.fr">
+        </div>
+        <div class="field">
+          <label>📞 Téléphone</label>
+          <input type="tel" id="fPhone" placeholder="02 99 00 00 00">
+        </div>
+      </div>
+      <div class="field">
+        <label>🌐 Site web</label>
+        <input type="url" id="fWebsite" placeholder="https://www.association.fr">
+      </div>
+
+      <hr class="section-divider">
+      <div class="field">
+        <label>Coordonnées GPS</label>
+        <div class="coord-row">
+          <div class="field">
+            <label>Latitude</label>
+            <input type="number" id="fLat" step="0.00001">
+          </div>
+          <div class="field">
+            <label>Longitude</label>
+            <input type="number" id="fLon" step="0.00001">
+          </div>
+          <div id="lockBadge" class="lock-badge">🔒 Verrouillé</div>
+        </div>
+        <span class="hint" id="coordHint"></span>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveModal()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM SUPPRESSION -->
+<div id="confirmOverlay">
+  <div class="confirm-box">
+    <h4>Supprimer cette association ?</h4>
+    <p id="confirmText"></p>
+    <div class="cf-actions">
+      <button class="btn btn-outline" onclick="closeConfirm()">Annuler</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const ADMIN_PASSWORD = "cd35admin2025";
+const STORAGE_KEY = 'cd35_admin_v3';
+
+const DATA_INITIAL = [{"name":"LES JEUNES D'ARGENTRE","q":"5 Rue Ambroise Paré","postcode":"35370","city":"Argentré-du-Plessis","disciplines":["Théâtre","Gymnastique féminine","Gymnastique masculine","Gymnastique rythmique"],"lat":48.058015,"lon":-1.148777,"source":"manual"},{"name":"JEANNE D'ARC DE BRUZ","q":"2 Esplanade Colette Besson","postcode":"35170","city":"Bruz","disciplines":["Gymnastique féminine","Autres activités de remise en forme et d'entretien","Gym Form'"],"lat":48.03395,"lon":-1.735983,"source":"manual"},{"name":"AS TREMBLAY-CHAUVIGNE","q":"Val Couesnon","postcode":"35560","city":"Val Couesnon","disciplines":["Volley Ball"],"lat":48.459306,"lon":-1.482494,"source":"manual"},{"name":"ESPERANCE DE CHAVAGNE","q":"6 Rue de l'Avenir","postcode":"35310","city":"Chavagne","disciplines":["Autres activités manuelles","Théâtre","Tir à l'arc"],"lat":48.051988,"lon":-1.788017,"source":"manual"},{"name":"LA VAILLANTE","q":"Le Ferré","postcode":"35420","city":"Le Ferré","disciplines":["Volley Ball"],"lat":48.491155,"lon":-1.294032,"source":"manual"},{"name":"ESPERANCE FOUGERES","q":"1 bis Rue Le Bouteiller","postcode":"35300","city":"Fougères","disciplines":["Cirque","Autres arts du Cirque","Autres danses","Danse classique","Country","Danse contemporaine","Modern' Jazz","Zumba","Taï chi chuan","Yoga"],"lat":48.353581,"lon":-1.208442,"source":"manual"},{"name":"LES VOLONTAIRES JANZÉENS","q":"Rue des Trois Sapins","postcode":"35150","city":"Janzé","disciplines":["Autres musiques","Orchestre d'harmonie","Orchestre de batterie fanfare"],"lat":47.959776,"lon":-1.490738,"source":"manual"},{"name":"OLYMPIQUE MONTREUIL-LANDAVRAN","q":"Landavran","postcode":"35450","city":"Landavran","disciplines":["Volley Ball"],"lat":48.159151,"lon":-1.288858,"source":"manual"},{"name":"VOLLEY BALL LOUVIGNE DE BAIS","q":"6 Place de la Mairie","postcode":"35680","city":"Louvigné-de-Bais","disciplines":["Volley Ball"],"lat":48.048451,"lon":-1.332102,"source":"manual"},{"name":"OCM TWIRLING MONTAUBAN DE BRETAGNE","q":"2 Rue de la Métairie Neuve","postcode":"35360","city":"Montauban-de-Bretagne","disciplines":["Twirling"],"lat":48.198762,"lon":-2.054544,"source":"manual"},{"name":"JA MORDELLES","q":"3 Rue Jeanne d'Arc","postcode":"35310","city":"Mordelles","disciplines":["Gymnastique rythmique","Tennis de table"],"lat":48.073727,"lon":-1.851462,"source":"manual"},{"name":"L'ENVOLÉE GYMNIQUE ACIGNE","q":"4 Rue du Stade","postcode":"35690","city":"Acigné","disciplines":["Eveil de l'enfant","Eveil des premiers pas","Autres activités gymniques et d'expression","Gymnastique féminine","Gymnastique masculine","Autres activités de remise en forme et d'entretien"],"lat":48.135597,"lon":-1.540103,"source":"manual"},{"name":"FANFARE PLELANAISE","q":"11 les Glyorels","postcode":"35380","city":"Plélan le Grand","disciplines":["Orchestre de batterie fanfare"],"lat":48.002234,"lon":-2.103269,"source":"manual"},{"name":"SEP QUEDILLAC","q":"19 Rue de Rennes","postcode":"35290","city":"Quédillac","disciplines":["Orchestre de batterie fanfare","Multi Activités (éducatives et animation)","Twirling"],"lat":48.249203,"lon":-2.141191,"source":"manual"},{"name":"AVENIR DE RANNEE","q":"4 Avenue de l'Ardenne","postcode":"35130","city":"Rannée","disciplines":["Orchestre d'harmonie"],"lat":47.923112,"lon":-1.241695,"source":"manual"},{"name":"AVENIR DE RENNES","q":"47 bis Rue Papu","postcode":"35000","city":"Rennes","disciplines":["Autres activités manuelles","Eveil de l'enfant","Gymnastique féminine","Randonnée pédestre","Autres activités de remise en forme et d'entretien","Basket Ball","Tennis de table"],"lat":48.110886,"lon":-1.694339,"source":"manual"},{"name":"CADETS DE BRETAGNE","q":"139 Rue d'Antrain","postcode":"35700","city":"Rennes","disciplines":["Eveil de l'enfant","Gymnastique féminine","Gymnastique rythmique","Gym Form'"],"lat":48.124242,"lon":-1.668581,"source":"manual"},{"name":"JA RENNES","q":"16 Rue Guillaume Lejean","postcode":"35700","city":"Rennes","disciplines":["Basket Ball","Volley Ball"],"lat":48.116656,"lon":-1.656682,"source":"manual"},{"name":"TOUR D'AUVERGNE RENNES","q":"8 Passage du Couëdic","postcode":"35000","city":"Rennes","disciplines":["Gymnastique féminine"],"lat":48.103843,"lon":-1.683596,"source":"manual"},{"name":"USL SAINT DOMINEUC","q":"15 Chemin des Dames","postcode":"35190","city":"Saint-Domineuc","disciplines":["Gymnastique féminine","Gymnastique masculine"],"lat":48.37577,"lon":-1.87885,"source":"manual"},{"name":"SAINT GERMAIN TWIRLING CLUB","q":"1 Place de la Mairie","postcode":"35133","city":"Saint-Germain-en-Coglès","disciplines":["Twirling"],"lat":48.410823,"lon":-1.36487,"source":"manual"},{"name":"MAEN ROCH VOLLEY BALL","q":"Maen Roch","postcode":"35460","city":"Maen Roch","disciplines":["Volley Ball"],"lat":48.395804,"lon":-1.348829,"source":"manual"},{"name":"US SAINT JEAN SUR VILAINE","q":"10 Rue du Verger","postcode":"35220","city":"Saint-Jean-sur-Vilaine","disciplines":["Volley Ball"],"lat":48.116847,"lon":-1.361405,"source":"manual"},{"name":"HVVB SAINT M'HERVE","q":"Saint-M'Hervé","postcode":"35500","city":"Saint-M'Hervé","disciplines":["Volley Ball"],"lat":48.178694,"lon":-1.11729,"source":"manual"},{"name":"AURORE DE VITRE","q":"3 Rue de la Poultière","postcode":"35500","city":"Vitré","disciplines":["Multi Activités (éducatives et animation)","Autres activités athlétiques","Gymnastique féminine","Gymnastique masculine","Marche nordique"],"lat":48.124469,"lon":-1.20002,"source":"manual"},{"name":"VOLLEY-CLUB JAVENE","q":"2 Place Saint-Martin","postcode":"35133","city":"Javené","disciplines":["Volley Ball"],"lat":48.395308,"lon":-1.063578,"source":"manual"},{"name":"LES BLEUETS LE PERTRE","q":"2 Place de l'Église","postcode":"35370","city":"Le Pertre","disciplines":["Volley Ball"],"lat":48.034879,"lon":-1.036643,"source":"manual"},{"name":"PLELAN LE GRAND - AZYLIS","q":"1 Rue Montfort","postcode":"35380","city":"Plélan le Grand","disciplines":["Orchestre d'harmonie"],"lat":48.002274,"lon":-2.094848,"source":"manual"},{"name":"ROMILLE \"LES VOLONTAIRES\"","q":"5 Rue de la Vaunoise","postcode":"35850","city":"Romillé","disciplines":["Eveil de l'enfant","Gymnastique rythmique","Autres activités de remise en forme et d'entretien","Cardio training","Musculation","Pilates"],"lat":48.213449,"lon":-1.892778,"source":"manual"},{"name":"VOLLEY-BALL-CLUB ROMAGNE","q":"17 Rue Nationale","postcode":"35133","city":"Romagné","disciplines":["Volley Ball"],"lat":48.342463,"lon":-1.274977,"source":"manual"},{"name":"CLUB SPORTIF ST MEDARD VOLLEY","q":"5 Rue de la Mairie","postcode":"35370","city":"Torcé","disciplines":["Volley Ball"],"lat":48.061116,"lon":-1.267545,"source":"manual"},{"name":"VOLLEY-BALL SAINT GERMAIN EN COGLES","q":"Saint-Germain-en-Coglès","postcode":"35133","city":"Saint-Germain-en-Coglès","disciplines":["Volley Ball"],"lat":48.403897,"lon":-1.262937,"source":"manual"},{"name":"TWIRLING SPORT BETTON","q":"21 Rue des Châtaigniers","postcode":"35830","city":"Betton","disciplines":["Twirling"],"lat":48.175707,"lon":-1.634199,"source":"manual"},{"name":"VOLLEY BALL IZEEN","q":"38 Rue Pierre Landais","postcode":"35450","city":"Val-d'Izé","disciplines":["Volley Ball"],"lat":48.176982,"lon":-1.301971,"source":"manual"},{"name":"ESBM","q":"Saint-Brice-de-Landelles","postcode":"50730","city":"Saint-Brice-de-Landelles","disciplines":["Volley Ball"],"lat":48.533196,"lon":-1.15287,"source":"manual"},{"name":"VOLLEY BALL DOMPIERRE-LUITRE","q":"9 Rue de la Mairie","postcode":"35210","city":"Luitré-Dompierre","disciplines":["Volley Ball"],"lat":48.266689,"lon":-1.14518,"source":"manual"},{"name":"ENTENTE SPORTIVE GOSNE","q":"Place du Calvaire","postcode":"35140","city":"Gosné","disciplines":["Volley Ball"],"lat":48.299408,"lon":-1.309677,"source":"manual"},{"name":"LES JONGLEURS GYM LA GUERCHE DE BRETAGNE","q":"15 Rue Notre-Dame","postcode":"35130","city":"La Guerche-de-Bretagne","disciplines":["Gymnastique féminine","Gymnastique masculine"],"lat":47.942112,"lon":-1.231951,"source":"manual"},{"name":"US VERN TWIRLING BATON","q":"7 Avenue de la Chalotais","postcode":"35770","city":"Vern-sur-Seiche","disciplines":["Twirling"],"lat":48.044429,"lon":-1.603598,"source":"manual"},{"name":"LA COMPAGNIE DE THALIE","q":"8 Rue de Rennes","postcode":"35132","city":"Vezin-le-Coquet","disciplines":["Non précisée"],"lat":48.119125,"lon":-1.755143,"source":"manual"},{"name":"LES CHIC'ANERIES ORGERES","q":"Rue des Sports","postcode":"35230","city":"Orgères","disciplines":["Théâtre"],"lat":47.995662,"lon":-1.667508,"source":"manual"},{"name":"LES FÉES ZÈBRES","q":"32 Route de Saint-James","postcode":"35300","city":"Fougères","disciplines":["Eveil de l'enfant","Eveil des premiers pas","Multi Activités (éducatives et animation)"],"lat":48.365352,"lon":-1.20863,"source":"manual"},{"name":"DAO XING SHE - ARTS MARTIAUX TRADITIONNELS CHINOIS","q":"9 Rue Emile Cochet","postcode":"35000","city":"Rennes","disciplines":["Kung fu"],"lat":48.126836,"lon":-1.657154,"source":"manual"},{"name":"ESSC SENS DE BRETAGNE VOLLEY-BALL","q":"9 Place de la Mairie","postcode":"35490","city":"Sens-de-Bretagne","disciplines":["Volley Ball"],"lat":48.33281,"lon":-1.535436,"source":"manual"}];
+
+let ASSOCS = [];
+let map, layerGroup;
+const markerById = {};
+let activeMapId = null;
+let editingId = null;
+let deleteId = null;
+
+function checkLogin(){
+  if(document.getElementById('pwdInput').value === ADMIN_PASSWORD){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    initApp();
+  } else {
+    document.getElementById('loginError').style.display='block';
+  }
+}
+document.getElementById('pwdInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkLogin();});
+
+function initApp(){
+  const saved = loadSaved();
+  ASSOCS = (saved && saved.length) ? saved : DATA_INITIAL.map((a,i)=>({...a,id:i,email:'',phone:'',website:''}));
+  if(ASSOCS.length && ASSOCS[0].id === undefined) ASSOCS = ASSOCS.map((a,i)=>({...a,id:i}));
+  // S'assurer que les anciens enregistrements ont les nouveaux champs
+  ASSOCS = ASSOCS.map(a=>({email:'',phone:'',website:'',...a}));
+  initMap();
+  buildMarkers();
+  renderMapList();
+  renderTable();
+  updateHeader();
+}
+
+function switchTab(tab){
+  document.getElementById('tabCarte').classList.toggle('active', tab==='carte');
+  document.getElementById('tabListe').classList.toggle('active', tab==='liste');
+  document.getElementById('viewCarte').style.display = tab==='carte' ? 'flex' : 'none';
+  document.getElementById('viewListe').style.display = tab==='liste' ? 'flex' : 'none';
+  if(tab==='carte') setTimeout(()=>map.invalidateSize(),50);
+}
+
+function initMap(){
+  map = L.map('map',{scrollWheelZoom:true}).setView([48.18,-1.6],9);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+  layerGroup = L.layerGroup().addTo(map);
+  map.on('click', onMapClick);
+}
+
+function dotIcon(active){
+  const size = active ? 22 : 14;
+  const color = active ? '#8C3495' : '#1a7a4a';
+  return L.divIcon({
+    className:'',
+    html:`<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.4);"></div>`,
+    iconSize:[size,size],iconAnchor:[size/2,size/2],popupAnchor:[0,-size/2]
+  });
+}
+
+function buildMarkers(){
+  layerGroup.clearLayers();
+  Object.keys(markerById).forEach(k=>delete markerById[k]);
+  ASSOCS.forEach(a=>{
+    const m = L.marker([a.lat,a.lon],{icon:dotIcon(false)});
+    m.bindTooltip(a.name,{permanent:false,direction:'top'});
+    m.on('click',()=>selectMapAssoc(a.id,false));
+    markerById[a.id]=m;
+    layerGroup.addLayer(m);
+  });
+}
+
+function onMapClick(e){
+  if(activeMapId===null) return;
+  const a = ASSOCS.find(x=>x.id===activeMapId);
+  if(!a) return;
+  a.lat = parseFloat(e.latlng.lat.toFixed(6));
+  a.lon = parseFloat(e.latlng.lng.toFixed(6));
+  a.source = 'manual';
+  markerById[activeMapId].setLatLng([a.lat,a.lon]);
+  save();
+  showToast('📍 ' + a.name + ' — position mise à jour');
+}
+
+function selectMapAssoc(id, fromList){
+  if(activeMapId!==null && markerById[activeMapId]) markerById[activeMapId].setIcon(dotIcon(false));
+  activeMapId = id;
+  markerById[id].setIcon(dotIcon(true));
+  if(fromList){
+    const a=ASSOCS.find(x=>x.id===id);
+    map.flyTo([a.lat,a.lon],16,{duration:0.5});
+  }
+  renderMapList();
+}
+
+function renderMapList(){
+  const q = document.getElementById('mapSearch').value.toLowerCase();
+  const list = document.getElementById('mapList');
+  list.innerHTML='';
+  ASSOCS.filter(a=>!q||a.name.toLowerCase().includes(q)||a.city.toLowerCase().includes(q))
+    .forEach(a=>{
+      const d=document.createElement('div');
+      d.className='map-card'+(a.id===activeMapId?' active':'');
+      d.innerHTML='<div class="cn">'+a.name+'</div><div class="cc">'+a.city+' · '+a.postcode+'</div>';
+      d.onclick=()=>selectMapAssoc(a.id,true);
+      list.appendChild(d);
+    });
+}
+
+function renderTable(){
+  const q = document.getElementById('listeSearch').value.toLowerCase();
+  const filtered = ASSOCS.filter(a=>!q||a.name.toLowerCase().includes(q)||a.city.toLowerCase().includes(q));
+  document.getElementById('listeCount').textContent = filtered.length + ' association' + (filtered.length>1?'s':'');
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML='';
+  filtered.forEach(a=>{
+    const tr=document.createElement('tr');
+    const chips = a.disciplines.map(d=>'<span class="chip">'+d+'</span>').join('');
+    let contact = '';
+    if(a.email) contact += '<div>📧 '+a.email+'</div>';
+    if(a.phone) contact += '<div>📞 '+a.phone+'</div>';
+    if(a.website) contact += '<div>🌐 '+a.website+'</div>';
+    if(!contact) contact = '<span style="color:#ccc;font-style:italic;">—</span>';
+    tr.innerHTML='<td class="td-name">'+a.name+'</td>'
+      +'<td class="td-city">'+a.city+'<br><span style="font-size:11px;color:#999">'+a.postcode+'</span></td>'
+      +'<td class="td-contact">'+contact+'</td>'
+      +'<td><div class="td-discs">'+chips+'</div></td>'
+      +'<td><div class="td-actions">'
+      +'<button class="btn btn-outline btn-sm" onclick="openEditModal('+a.id+')">✏️ Modifier</button>'
+      +'<button class="btn btn-danger btn-sm" onclick="askDelete('+a.id+')">🗑</button>'
+      +'</div></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function openEditModal(id){
+  const a = ASSOCS.find(x=>x.id===id);
+  editingId = id;
+  document.getElementById('modalTitle').textContent = 'Modifier l\'association';
+  document.getElementById('fName').value = a.name;
+  document.getElementById('fCity').value = a.city;
+  document.getElementById('fPostcode').value = a.postcode;
+  document.getElementById('fAddress').value = a.q;
+  document.getElementById('fDiscs').value = a.disciplines.join('\n');
+  document.getElementById('fEmail').value = a.email||'';
+  document.getElementById('fPhone').value = a.phone||'';
+  document.getElementById('fWebsite').value = a.website||'';
+  document.getElementById('fLat').value = a.lat;
+  document.getElementById('fLon').value = a.lon;
+  document.getElementById('fLat').readOnly = true;
+  document.getElementById('fLon').readOnly = true;
+  document.getElementById('lockBadge').style.display = 'flex';
+  document.getElementById('coordHint').textContent = 'Coordonnées verrouillées — modifiez via l\'onglet Carte si besoin.';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openNewModal(){
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Nouvelle association';
+  document.getElementById('fName').value='';
+  document.getElementById('fCity').value='';
+  document.getElementById('fPostcode').value='';
+  document.getElementById('fAddress').value='';
+  document.getElementById('fDiscs').value='';
+  document.getElementById('fEmail').value='';
+  document.getElementById('fPhone').value='';
+  document.getElementById('fWebsite').value='';
+  document.getElementById('fLat').value='48.18';
+  document.getElementById('fLon').value='-1.6';
+  document.getElementById('fLat').readOnly = false;
+  document.getElementById('fLon').readOnly = false;
+  document.getElementById('lockBadge').style.display = 'none';
+  document.getElementById('coordHint').textContent = 'Centre du département par défaut. Affinez via l\'onglet Carte après création.';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  editingId = null;
+}
+
+function saveModal(){
+  const name = document.getElementById('fName').value.trim();
+  const city = document.getElementById('fCity').value.trim();
+  const postcode = document.getElementById('fPostcode').value.trim();
+  const q = document.getElementById('fAddress').value.trim();
+  const discsRaw = document.getElementById('fDiscs').value.trim();
+  const email = document.getElementById('fEmail').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  const website = document.getElementById('fWebsite').value.trim();
+  const lat = parseFloat(document.getElementById('fLat').value);
+  const lon = parseFloat(document.getElementById('fLon').value);
+
+  if(!name||!city||!postcode){showToast('⚠ Nom, ville et code postal sont obligatoires');return;}
+  const disciplines = discsRaw ? discsRaw.split('\n').map(d=>d.trim()).filter(Boolean) : ['Non précisée'];
+
+  if(editingId !== null){
+    const a = ASSOCS.find(x=>x.id===editingId);
+    a.name=name; a.city=city; a.postcode=postcode; a.q=q; a.disciplines=disciplines;
+    a.email=email; a.phone=phone; a.website=website;
+    if(markerById[a.id]) markerById[a.id].bindTooltip(name,{permanent:false,direction:'top'});
+    showToast('✓ ' + name + ' modifiée');
+  } else {
+    const newId = Math.max(0,...ASSOCS.map(x=>x.id))+1;
+    const newA = {id:newId,name,city,postcode,q,disciplines,email,phone,website,lat:isNaN(lat)?48.18:lat,lon:isNaN(lon)?-1.6:lon,source:'manual'};
+    ASSOCS.push(newA);
+    const m = L.marker([newA.lat,newA.lon],{icon:dotIcon(false)});
+    m.bindTooltip(newA.name,{permanent:false,direction:'top'});
+    m.on('click',()=>selectMapAssoc(newA.id,false));
+    markerById[newA.id]=m;
+    layerGroup.addLayer(m);
+    showToast('✓ ' + name + ' ajoutée');
+  }
+
+  save();
+  renderTable();
+  renderMapList();
+  updateHeader();
+  closeModal();
+}
+
+function askDelete(id){
+  const a = ASSOCS.find(x=>x.id===id);
+  deleteId = id;
+  document.getElementById('confirmText').textContent = 'Voulez-vous vraiment supprimer "' + a.name + '" (' + a.city + ') ? Cette action est irréversible.';
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open');deleteId=null;}
+function confirmDelete(){
+  if(deleteId===null) return;
+  const a=ASSOCS.find(x=>x.id===deleteId);
+  ASSOCS=ASSOCS.filter(x=>x.id!==deleteId);
+  if(markerById[deleteId]){layerGroup.removeLayer(markerById[deleteId]);delete markerById[deleteId];}
+  if(activeMapId===deleteId) activeMapId=null;
+  save();
+  renderTable();
+  renderMapList();
+  updateHeader();
+  closeConfirm();
+  showToast('🗑 ' + a.name + ' supprimée');
+}
+
+function save(){
+  try{localStorage.setItem(STORAGE_KEY, JSON.stringify(ASSOCS));}catch(e){}
+}
+function loadSaved(){
+  try{const d=localStorage.getItem(STORAGE_KEY);return d?JSON.parse(d):null;}catch(e){return null;}
+}
+function exportJSON(){
+  const data = ASSOCS.map(({id,...rest})=>rest);
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='data.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ data.json exporté — glissez-le dans votre repo GitHub');
+}
+function updateHeader(){
+  const nb = ASSOCS.length;
+  const disc = new Set(ASSOCS.flatMap(a=>a.disciplines)).size;
+  document.getElementById('headerCount').textContent = nb + ' associations · ' + disc + ' disciplines';
+}
+
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+</script>
+</body>
+</html>
